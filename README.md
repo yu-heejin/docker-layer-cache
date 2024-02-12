@@ -1,9 +1,4 @@
 ## Docker Layer
-
-![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/e635bd04-66f9-45c4-b25c-a1904ed95b09)
-
-https://malwareanalysis.tistory.com/236
-
 - Docker는 지정된 이미지를 빌드하는데 필요한 **모든 명령이 순서대로 포함된 텍스트 파일인 Dockerfile을 순서대로 build를 수행**한다.
 - 아래 Dockerfile에 적힌 코드가 각각 읽기 전용 레이어로 구성된다.
     
@@ -18,8 +13,10 @@ https://malwareanalysis.tistory.com/236
     
 ![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/3afca01c-e6e0-413f-998d-4662a913cfb5)
 
-https://docs.docker.com/build/cache/
-    
+https://docs.docker.com/build/cache/  
+
+* 단, 모든 줄마다 레이어를 만들지는 않고 **파일 시스템에 변화가 생기는 (ex. `ADD`, `COPY`, `RUN`)경우에만 이미지 레이어를 생성**한다.
+* echo 등과 같이 standard out을 발생시키는 커맨드같은 경우 새로운 레이어를 만들지 않기 때문에 이미지 사이즈에 영향을 주지 않는다.
 
 ## Docker Cache
 
@@ -313,6 +310,9 @@ https://github.com/yu-heejin/docker-layer-cache
     
     [Github Action에서 Docker Image Layers 캐싱하기](https://flavono123.oopy.io/posts/cache-container-image-layers-in-github-action)
     
+- Docker Layer에 대한 심화 자료
+    
+    [[Docker] Docker가 Image Layer를 구성하는 방법](https://creboring.net/blog/how-docker-divide-image-layer/)
 
 ## 참고 자료
 
