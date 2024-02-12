@@ -1,4 +1,5 @@
 ## Docker Layer
+
 - Docker는 지정된 이미지를 빌드하는데 필요한 **모든 명령이 순서대로 포함된 텍스트 파일인 Dockerfile을 순서대로 build를 수행**한다.
 - 아래 Dockerfile에 적힌 코드가 각각 읽기 전용 레이어로 구성된다.
     
@@ -11,12 +12,13 @@
     RUN make build
     ```
     
-![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/3afca01c-e6e0-413f-998d-4662a913cfb5)
+    ![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/3ceb67c6-8f3b-4d83-a655-12fdd25da425)
 
-https://docs.docker.com/build/cache/  
-
-* 단, 모든 줄마다 레이어를 만들지는 않고 **파일 시스템에 변화가 생기는 (ex. `ADD`, `COPY`, `RUN`)경우에만 이미지 레이어를 생성**한다.
-* echo 등과 같이 standard out을 발생시키는 커맨드같은 경우 새로운 레이어를 만들지 않기 때문에 이미지 사이즈에 영향을 주지 않는다.
+    
+    https://docs.docker.com/build/cache/
+    
+    - 단, 모든 줄마다 레이어를 만들지는 않고 **파일 시스템에 변화가 생기는 (ex. `ADD`, `COPY`, `RUN`)경우에만 이미지 레이어를 생성**한다.
+    - echo 등과 같이 standard out을 발생시키는 커맨드같은 경우 새로운 레이어를 만들지 않기 때문에 이미지 사이즈에 영향을 주지 않는다.
 
 ## Docker Cache
 
@@ -27,9 +29,10 @@ https://docs.docker.com/build/cache/
 - 이 과정에서 캐시가 무효화 되는 경우가 있는데, 대표적으로 우리가 작성한 코드가 변경되는 경우가 있다.
     - 이 경우, 수정 사항이 발생하여 레이어의 캐시가 무효화되는데, 문제는 **이후의 모든 레이어도 처음부터 다시 빌드해야 한다.**
         
-![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/90d46542-63a0-4ed0-9d57-dac0a9444dae)
+        !![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/1c526ac7-a2f0-422d-8e4f-50119ad85415)
 
-https://docs.docker.com/build/cache/
+        
+        https://docs.docker.com/build/cache/
         
 - **Build Cache가 무효화되는 경우**
     - Starting with a parent image that's already in the cache, the next instruction is compared against all child images derived from that base image to see if one of them was built using the exact same instruction. If not, the cache is invalidated.
@@ -49,12 +52,12 @@ https://docs.docker.com/build/cache/
 
 - 이미지 레이어가 변경되면 **하위 이미지 레이어는 변경 사항이 없더라도 캐시를 사용하지 못한다. (이미지 레이어 체인)**
 
-![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/9e9e3d41-d210-4223-9979-55c587b9e04a)
+![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/fd061261-b495-4bba-92a8-5d05cc3c6d7e)
 
 
 https://malwareanalysis.tistory.com/236
 
-![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/baeb6cc7-ec4e-43f4-aac4-ccf8a3599c8a)
+![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/67a86b0c-9f60-4214-be8d-1cb2994ca37b)
 
 
 https://malwareanalysis.tistory.com/236
@@ -117,9 +120,11 @@ https://github.com/yu-heejin/docker-layer-cache
      => => naming to docker.io/library/backend
     ```
     
-![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/228e9dbd-e2dc-4f47-be7e-99f822307f08)
+    ![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/7e4cc770-2540-46a8-985e-7e992bbda487)
 
     
+    - 해당 방법은 캐시 기능을 사용하여 빌드하지 않기 때문에 코드를 수정하더라도 빌드 속도에 큰 차이가 없다.
+    - 만약 코드를 변경 후 다시 빌드를 수행하는 경우, **jar 파일 자체가 복사되기 때문에 코드가 한 줄만 변경되더라도 전체가 변경되었다고 인식하기 때문이다.**
 2. Layered jar 방식을 사용하여 빌드하기
     
     <aside>
@@ -129,9 +134,12 @@ https://github.com/yu-heejin/docker-layer-cache
     
     [Reusing Docker Layers with Spring Boot | Baeldung](https://www.baeldung.com/docker-layers-spring-boot)
     
-    ![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/9b83c22b-2342-4886-8454-38f6ed20046e)
+    ![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/f39ec0cf-13c0-49ed-af00-09c5e73a1f1f)
 
-    ```
+    
+    - 간단히 설명하자면, `application` 부분은 우리가 작성하는 코드 부분이다.
+    
+    ```docker
     FROM adoptopenjdk:11-jdk
     WORKDIR application
     COPY ./dependencies ./
@@ -183,7 +191,9 @@ https://github.com/yu-heejin/docker-layer-cache
      => => naming to docker.io/library/backend
     ```
     
-![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/cb683d75-d197-4811-88e3-c67ee5cdf53d)
+    - 코드가 변경되더라도 `application` 부분만 변경되기 때문에 캐시 기능을 활용할 수 있다.
+    
+    ![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/d59d725b-5b47-41a9-8605-114e047dac07)
 
     
 
@@ -236,9 +246,10 @@ https://github.com/yu-heejin/docker-layer-cache
      => => naming to docker.io/library/backend
     ```
     
-![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/eaaf8d50-8f10-47ba-89af-4c9e5a1a6cf4)
+    ![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/5c98e498-aa4e-4a07-8b26-0b294b708c4b)
 
     
+    - 파일 자체를 모두 복사하여 의존성 설치(npm install)가 발생하기 때문에 코드가 한 줄만 수정되더라도 `COPY . .` 에서 캐시를 사용할 수 없다.
 2. 캐시를 사용한 빌드
     
     ```docker
@@ -291,7 +302,9 @@ https://github.com/yu-heejin/docker-layer-cache
      => => naming to docker.io/library/backend
     ```
     
-![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/33c8dbe7-f566-4648-b5f6-92c27e32dce1)
+    - 변경이 잦지 않은 npm 모듈을 먼저 설치하고 코드를 복사하여 캐시를 사용할 수 있다.
+    
+    ![image](https://github.com/yu-heejin/docker-layer-cache/assets/96467030/f5567af5-5562-4720-a570-4414a3982360)
 
     
 
@@ -313,6 +326,7 @@ https://github.com/yu-heejin/docker-layer-cache
 - Docker Layer에 대한 심화 자료
     
     [[Docker] Docker가 Image Layer를 구성하는 방법](https://creboring.net/blog/how-docker-divide-image-layer/)
+    
 
 ## 참고 자료
 
@@ -321,3 +335,4 @@ https://github.com/yu-heejin/docker-layer-cache
 - https://docs.docker.com/build/cache/
 - https://malwareanalysis.tistory.com/236
 - https://medium.com/swlh/docker-caching-introduction-to-docker-layers-84f20c48060a
+- https://docs.docker.com/build/guide/layers/
